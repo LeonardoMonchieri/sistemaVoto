@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="CENTER" hgap="10" style="-fx-background-color: #0066cc;" vgap="10" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.manuelelucchi.controllers.HomeController">
+   <children>
+      <Button onAction="#userLogin" prefHeight="100.0" prefWidth="200.0" stylesheets="@style/HomeStyle.css" text="User" GridPane.rowIndex="1">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button onAction="#sessionLogin" prefHeight="100.0" prefWidth="200.0" stylesheets="@style/HomeStyle.css" text="Session" GridPane.columnIndex="2" GridPane.rowIndex="1">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1">
+         <image>
+            <Image url="@../Image/rep_ita_white.png" />
+         </image>
+      </ImageView>
+   </children>
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+</GridPane>
