@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.fazioMonchieri.App;
 //import org.fazioMonchieri.data.DbManager;
-//import org.fazioMonchieri.models.Totem;
+
 
 public abstract class Controller {
     public void init() {
@@ -13,10 +13,6 @@ public abstract class Controller {
 
     public void onNavigateFrom(Controller sender, Object parameter) {
 
-    }
-
-    public boolean isFirstHomeLoad() {
-        return !App.homeLoaded;
     }
 
     public void navigate(String view, Object parameter) {
@@ -30,4 +26,5 @@ public abstract class Controller {
     public void navigate(String view) {
         navigate(view, null);
     }
+
 }
