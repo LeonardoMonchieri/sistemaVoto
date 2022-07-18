@@ -2,8 +2,9 @@ package org.fazioMonchieri.controllers;
 
 import org.fazioMonchieri.App;
 import org.fazioMonchieri.utilities.Controller;
-import org.fazioMonchieri.data.DbManager;
 import org.fazioMonchieri.models.Persona;
+import org.fazioMonchieri.models.Sessione;
+import org.fazioMonchieri.data.DbManager;
 
 
 import java.util.stream.Collectors;
@@ -17,7 +18,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.util.StringConverter;
 
 
-public class UserLoginController extends Controller{
+
+public class SessionLoginController extends Controller{
 
     @FXML
     private Button loginButton;
@@ -29,48 +31,29 @@ public class UserLoginController extends Controller{
     private Label result;
 
     @FXML
-    private TextField username;
-
-    @FXML
-    private ChoiceBox<String> Usertype;
-
-    @Override
-    public void init() {
-        Usertype.getItems().add("Gestore");
-        Usertype.getItems().add("Elettore");
-    }
+    private TextField identifier;
 
     
 
     @FXML
     void handleButtonLog() throws Exception {
         
-        String user = username.getText().toString().replaceAll("\\s", "");
+        String id = identifier.getText().toString().replaceAll("\\s", "");
         String pw = password.getText().toString().replaceAll("\\s", "");
-        String userType = (String) Usertype.getValue();
         
-        if(user.length()==0 || pw.length()==0){
+        if(id.length()==0 || pw.length()==0){
             result.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
             result.setText("Inserisci le credenziali");   
             return;
         }
-        DbManager db = DbManager.getInstance();
+        DbManager db = DbManager.getInstance();    
         
-        boolean isGestore=false;
-
-        if(userType.equals("Gestore")) isGestore = true;
-        else isGestore=false;
-        
-        
-        Persona persona = db.login(user, pw, isGestore);
-        if(persona==null){
+        Sessione sessione = db.loginSession(id, pw);
+        if(sessione==null){
             result.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
             result.setText("credenziali NON valide");
-        } 
-        else if(isGestore) {
-            navigate("GestoreView", persona);
         }else{
-            navigate("ElettoreView", persona);   
+            navigate("LocalSessionView", sessione);   
         }
         return;
     }
