@@ -1,45 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<GridPane alignment="CENTER" hgap="10" style="-fx-background-color: #0066cc;" vgap="10" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fazioMonchieri.controllers.HomeController">
-   <children>
-      <Button onAction="#register" prefHeight="100.0" prefWidth="200.0" stylesheets="@style/HomeStyle.css" text="User" GridPane.rowIndex="1">
-         <font>
-            <Font size="20.0" />
-         </font>
-         <GridPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </GridPane.margin>
-      </Button>
-      <Button onAction="#login" prefHeight="100.0" prefWidth="200.0" stylesheets="@style/HomeStyle.css" text="Session" GridPane.columnIndex="2" GridPane.rowIndex="1">
-         <font>
-            <Font size="20.0" />
-         </font>
-         <GridPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </GridPane.margin>
-      </Button>
-      <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1">
-         <image>
-            <Image url="@../Image/rep_ita_white.png" />
-         </image>
-      </ImageView>
-   </children>
-   <columnConstraints>
-      <ColumnConstraints />
-      <ColumnConstraints />
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints />
-      <RowConstraints />
-   </rowConstraints>
-</GridPane>
+<SplitPane dividerPositions="0.06219578150351542" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="619.0" style="-fx-background-color: #0066cc;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/18">
+  <items>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+         <children>
+            <Label layoutX="12.0" layoutY="91.0" text="Name" textFill="WHITE" AnchorPane.leftAnchor="12.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <Label layoutX="10.0" layoutY="127.0" text="Surname" textFill="#fff6f6" AnchorPane.leftAnchor="10.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <Label layoutX="10.0" layoutY="163.0" text="Codice fiscale" textFill="WHITE" AnchorPane.leftAnchor="10.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <Button layoutX="12.0" layoutY="357.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="119.0" stylesheets="@../../../sistemaVoto-main/App_test/gui_test/src/main/java/org/fazioMonchieri/view/style/HomeStyle.css" text="Log out" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Text fill="WHITE" layoutX="14.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Info utente" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="15.0">
+               <font>
+                  <Font size="36.0" />
+               </font>
+            </Text>
+         </children></AnchorPane>
+    <AnchorPane prefHeight="397.0" prefWidth="516.0">
+         <children>
+            <ListView layoutX="6.0" layoutY="61.0" prefHeight="321.0" prefWidth="415.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="61.0" />
+            <Text fill="WHITE" layoutX="14.0" layoutY="47.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sessioni aperte" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="15.0">
+               <font>
+                  <Font name="Arial" size="36.0" />
+               </font>
+            </Text>
+         </children></AnchorPane>
+  </items>
+</SplitPane>
