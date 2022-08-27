@@ -15,22 +15,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13</version>
+            <version>18</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>13</version>
-        </dependency>
-        <dependency>
-            <groupId>com.j256.ormlite</groupId>
-            <artifactId>ormlite-core</artifactId>
-            <version>5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.j256.ormlite</groupId>
-            <artifactId>ormlite-jdbc</artifactId>
-            <version>5.3</version>
+            <version>18</version>
         </dependency>
         <dependency>
             <groupId>org.xerial</groupId>
@@ -53,8 +43,10 @@
                 <directory>src/main/java</directory>
                 <includes>
                 <include>**/*.fxml</include>
+                <include>**/*.png</include>
+                <include>**/*.css</include>
                 </includes>
-            </resource>        
+            </resource>            
         </resources>
         <plugins>
             <plugin>
