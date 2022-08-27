@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: #0066cc;" stylesheets="@../style/TableStyile.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fazioMonchieri.controllers.SessionController">
+   <top>
+      <Label fx:id="sessionTitle" text="Session title" textFill="WHITE" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="64.0" />
+         </font>
+      </Label>
+   </top>
+   <center>
+      <AnchorPane fx:id="pane" prefHeight="401.0" prefWidth="647.0" stylesheets="@../style/TableStyile.css" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="sessionId" layoutX="14.0" layoutY="4.0" text="Session id:" textFill="WHITE" AnchorPane.leftAnchor="100.0" AnchorPane.topAnchor="0.0">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <Label fx:id="sessionPw" layoutX="104.0" layoutY="51.0" text="Password:" textFill="WHITE">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <Label fx:id="sessionAdmin" layoutX="100.0" layoutY="102.0" text="Gestore:" textFill="WHITE">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <Label fx:id="sessionVotingType" layoutX="100.0" layoutY="153.0" text="Tipo di votazione:" textFill="WHITE">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <Label fx:id="sessionBallotType" layoutX="101.0" layoutY="204.0" text="Metodo scrutinio:" textFill="WHITE">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <Label fx:id="quesitoCandidati" layoutX="100.0" layoutY="257.0" text="Candidati" textFill="WHITE">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <Label fx:id="question" layoutX="257.0" layoutY="267.0" textFill="WHITE">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <Button layoutX="271.0" layoutY="295.0" mnemonicParsing="false" onAction="#back" prefHeight="40.0" prefWidth="119.0" stylesheets="@../style/ButtonStyle.css" text="Back" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Button fx:id="OpenClose" layoutX="22.0" layoutY="474.0" mnemonicParsing="false" onAction="#updateSessionState" prefHeight="40.0" prefWidth="119.0" stylesheets="@../style/ButtonStyle.css" text="Apri" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+            <Label fx:id="sessionOpenDate" layoutX="455.0" textFill="WHITE" AnchorPane.rightAnchor="15.0">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <PieChart fx:id="pieChartTurnOut" disable="true" layoutX="147.0" layoutY="94.0" legendVisible="false" stylesheets="@../style/PieChart.css" AnchorPane.rightAnchor="0.0" />
+            <Label fx:id="sessionCloseLabel" layoutX="464.0" layoutY="51.0" textFill="WHITE" AnchorPane.rightAnchor="15.0">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+            <Label fx:id="winner" disable="true" layoutX="100.0" layoutY="433.0" textFill="WHITE" AnchorPane.bottomAnchor="10.0">
+               <font>
+                  <Font size="35.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </center>
+</BorderPane>
