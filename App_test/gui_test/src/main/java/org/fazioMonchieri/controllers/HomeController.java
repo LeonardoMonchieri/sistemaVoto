@@ -10,11 +10,11 @@ public class HomeController extends Controller{
 
     @FXML
     public void userLogin() {
-        navigate("LoginUserView");
+        navigate("UserLoginView");
     }
 
     @FXML
-    public void sessionLogin() {
-        navigate("LoginSessionView");
+    public void seggioLogin() {
+        navigate("SeggiolocaleLoginView");
     }
 }

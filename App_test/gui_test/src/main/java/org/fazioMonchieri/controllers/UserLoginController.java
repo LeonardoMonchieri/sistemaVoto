@@ -2,19 +2,21 @@ package org.fazioMonchieri.controllers;
 
 import org.fazioMonchieri.App;
 import org.fazioMonchieri.utilities.Controller;
-import org.fazioMonchieri.data.DbManager;
+import org.fazioMonchieri.models.Gestore;
+import org.fazioMonchieri.models.Elettore;
 import org.fazioMonchieri.models.Persona;
 
 
-import java.util.stream.Collectors;
+import java.util.Date;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ChoiceBox;
-import javafx.util.StringConverter;
 
 
 public class UserLoginController extends Controller{
@@ -26,9 +28,6 @@ public class UserLoginController extends Controller{
     private PasswordField password;
 
     @FXML
-    private Label result;
-
-    @FXML
     private TextField username;
 
     @FXML
@@ -36,6 +35,7 @@ public class UserLoginController extends Controller{
 
     @Override
     public void init() {
+        Usertype.getItems().clear();
         Usertype.getItems().add("Gestore");
         Usertype.getItems().add("Elettore");
     }
@@ -43,35 +43,74 @@ public class UserLoginController extends Controller{
     
 
     @FXML
-    void handleButtonLog() throws Exception {
+    void login() throws Exception {
         
         String user = username.getText().toString().replaceAll("\\s", "");
         String pw = password.getText().toString().replaceAll("\\s", "");
-        String userType = (String) Usertype.getValue();
+        String userType = Usertype.getValue();
+
+        Alert alert = new Alert(AlertType.WARNING);
         
-        if(user.length()==0 || pw.length()==0){
-            result.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
-            result.setText("Inserisci le credenziali");   
+        if(user.length()==0 && pw.length()==0){
+            alert.setContentText("Inserisci delle credenziali");
+            alert.showAndWait();
             return;
+        }else if(user.length()==0){
+            alert.setContentText("Inserisci un username");
+            alert.showAndWait();
         }
-        DbManager db = DbManager.getInstance();
+        else if(pw.length()==0){
+            alert.setContentText("Inserisci la password");
+            alert.showAndWait();
+        }
         
         boolean isGestore=false;
 
         if(userType.equals("Gestore")) isGestore = true;
         else isGestore=false;
         
+        /*
+         * Login dbManager
+         * Persona persona = db.login(user, pw, isGestore)
+         */
+
+
         
-        Persona persona = db.login(user, pw, isGestore);
-        if(persona==null){
-            result.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
-            result.setText("credenziali NON valide");
-        } 
-        else if(isGestore) {
-            navigate("GestoreView", persona);
+       
+        Persona testP=new Persona("BNCLNZ12M29H501H", true, "Lorenzo", "Bianchi",  new Date(29,8,2012), "RM");
+       
+        if(isGestore) {
+            //Login
+            Gestore gestore=null;
+            if(user.equals("userId") && pw.equals("1234")){
+                gestore=new Gestore("AdminId", "Mariottite", "1234", testP);
+            }
+            if(gestore==null){
+                alert.setHeaderText("Errore durante la fase di accesso");
+                alert.setContentText("Credenziali GESTORE non valide");
+                alert.showAndWait();
+                return;
+            }
+            
+            navigate("GestoreView", gestore);
         }else{
-            navigate("ElettoreView", persona);   
+            Elettore elettore=null;
+            if(user.equals("userId") && pw.equals("1234")){
+                elettore=new Elettore("ElettoreId", testP, "Marietto", "12345");
+            }
+            if(elettore==null){
+                alert.setHeaderText("Errore durante la fase di accesso");
+                alert.setContentText("Credenziali ELETTORE non valide");
+                alert.showAndWait();
+            }
+            navigate("ElettoreView", elettore);   
         }
         return;
+    }
+
+
+    @FXML
+    public void home(){
+        navigate("HomeView",null);
     }
 }
