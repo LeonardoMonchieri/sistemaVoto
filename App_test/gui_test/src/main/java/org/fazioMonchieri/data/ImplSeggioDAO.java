@@ -54,6 +54,7 @@ public class ImplSeggioDAO implements SeggioDAO, Observable{
             state.setString(2, password);
             ResultSet r = state.executeQuery();
             if(r!=null){
+                
                 return new Seggio(r.getInt("id"), r.getString("via"), r.getString("CAP"), r.getString("citta"), r.getString("provincia"));
             }
         }catch(SQLException e){

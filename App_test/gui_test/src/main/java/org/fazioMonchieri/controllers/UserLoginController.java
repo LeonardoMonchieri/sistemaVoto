@@ -1,13 +1,15 @@
 package org.fazioMonchieri.controllers;
 
-import org.fazioMonchieri.App;
+
 import org.fazioMonchieri.utilities.Controller;
 import org.fazioMonchieri.models.Gestore;
 import org.fazioMonchieri.models.Elettore;
-import org.fazioMonchieri.models.Persona;
 
 
-import java.util.Date;
+import org.fazioMonchieri.data.ImplElettoreDAO;
+import org.fazioMonchieri.data.ImplGestoreDAO;
+
+
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -15,11 +17,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Label;
+
 import javafx.scene.control.ChoiceBox;
 
 
 public class UserLoginController extends Controller{
+
+    ImplElettoreDAO elettoreDAO;
+
+    ImplGestoreDAO gestoreDAO;
 
     @FXML
     private Button loginButton;
@@ -38,6 +44,9 @@ public class UserLoginController extends Controller{
         Usertype.getItems().clear();
         Usertype.getItems().add("Gestore");
         Usertype.getItems().add("Elettore");
+
+        elettoreDAO = ImplElettoreDAO.getInstance();
+        gestoreDAO = ImplGestoreDAO.getInstance();
     }
 
     
@@ -73,18 +82,10 @@ public class UserLoginController extends Controller{
          * Login dbManager
          * Persona persona = db.login(user, pw, isGestore)
          */
-
-
-        
-       
-        Persona testP=new Persona("BNCLNZ12M29H501H", true, "Lorenzo", "Bianchi",  new Date(29,8,2012), "RM");
        
         if(isGestore) {
             //Login
-            Gestore gestore=null;
-            if(user.equals("userId") && pw.equals("1234")){
-                gestore=new Gestore("AdminId", "Mariottite", "1234", testP);
-            }
+            Gestore gestore= gestoreDAO.loginGestore(user, pw);
             if(gestore==null){
                 alert.setHeaderText("Errore durante la fase di accesso");
                 alert.setContentText("Credenziali GESTORE non valide");
@@ -94,10 +95,9 @@ public class UserLoginController extends Controller{
             
             navigate("GestoreView", gestore);
         }else{
-            Elettore elettore=null;
-            if(user.equals("userId") && pw.equals("1234")){
-                elettore=new Elettore("ElettoreId", testP, "Marietto", "12345");
-            }
+
+            Elettore elettore=elettoreDAO.loginElettore(user, pw);
+
             if(elettore==null){
                 alert.setHeaderText("Errore durante la fase di accesso");
                 alert.setContentText("Credenziali ELETTORE non valide");

@@ -1,9 +1,7 @@
 package org.fazioMonchieri.controllers;
 
 import org.fazioMonchieri.utilities.Controller;
-import org.fazioMonchieri.utilities.SchedaElettorale;
-import org.fazioMonchieri.utilities.SchedaElettoraleCandidato;
-import org.fazioMonchieri.utilities.SchedaElettoraleCategoricoPreferenza;
+
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -11,8 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-
+import org.fazioMonchieri.data.ImplCandidatoDAO;
+import org.fazioMonchieri.data.ImplPartitoDAO;
+import org.fazioMonchieri.data.ImplReferendumDAO;
+import org.fazioMonchieri.data.ImplSessioneDAO;
+import org.fazioMonchieri.data.ImplVotaCandidatoDAO;
+import org.fazioMonchieri.data.ImplVotaPartitoDAO;
 import org.fazioMonchieri.models.Candidato;
+import org.fazioMonchieri.models.Elettore;
 import org.fazioMonchieri.models.Partito;
 import org.fazioMonchieri.models.Persona;
 import org.fazioMonchieri.models.Referendum;
@@ -38,7 +42,7 @@ import javafx.util.Callback;
 
 public class VotingController extends Controller {
 
-    private Persona persona;
+    private Elettore elettore;
 
     private Sessione sessione;
 
@@ -48,6 +52,15 @@ public class VotingController extends Controller {
 
     private Boolean selectedOption;
 
+    private ImplVotaPartitoDAO votaPartitoDAO ;
+
+    private ImplVotaCandidatoDAO votaCandidatoDAO;
+
+    private ImplPartitoDAO partitoDAO;
+
+    private ImplReferendumDAO referendumDAO;
+
+    private ImplSessioneDAO sessioneDAO;
 
     @FXML
     private Label title;
@@ -76,8 +89,10 @@ public class VotingController extends Controller {
     @Override
     public void onNavigateFrom(Controller sender, Object parameter) {
         ArrayList<Object> params = (ArrayList<Object>) parameter;
-        this.persona = (Persona) params.get(0);
+        this.elettore = (Elettore) params.get(0);
         this.sessione = (Sessione) params.get(1);
+
+        sessioneDAO = ImplSessioneDAO.getInstance();
     }
 
     @Override
@@ -85,7 +100,7 @@ public class VotingController extends Controller {
         
         if (sessione.getTipoSessione() == TipoSessione.votoCategorico
                 || sessione.getTipoSessione() == TipoSessione.votoOrdinale) {
-            if (getCandidati() != null) {
+            if (sessioneDAO.getCandidati(this.sessione.getId()) != null) {
                 selectedCandidate = new ArrayList<>();
                 buildCandidateTable(null);
                 
@@ -95,7 +110,7 @@ public class VotingController extends Controller {
             }
         } else if (sessione.getTipoSessione() == TipoSessione.referendum) {
 
-            question.setText(getRefQuesito(this.sessione.getId()));
+            question.setText(sessioneDAO.getQuesitoReferendum(this.sessione.getId()));
 
             yesBtn.setDisable(false);
             yesBtn.setOpacity(1);
@@ -115,13 +130,16 @@ public class VotingController extends Controller {
     @FXML
     public void vote(){
         if (sessione.getTipoSessione() == TipoSessione.votoCategorico) {
-            //Registra scheda elettorale
+            if(!selectedCandidate.isEmpty()) votaCandidatoDAO.votaCandidatoCategorico(this.sessione.getId(), this.elettore.getId(), selectedCandidate.get(0));
+            else if(!selectedparty.isEmpty()) votaPartitoDAO.votaPartitoCategorico(this.sessione.getId(), this.elettore.getId(), selectedparty.get(0));
         } else if (sessione.getTipoSessione() == TipoSessione.votoCategoricoPreferenza) {
-            //Registra scheda elettorale
+            if(!selectedparty.isEmpty()) votaPartitoDAO.votaPartitoCategorico(this.sessione.getId(), this.elettore.getId(), selectedparty.get(0));
+            if(!selectedCandidate.isEmpty()) votaCandidatoDAO.votaCandidatoCategorico(this.sessione.getId(), this.elettore.getId(), selectedCandidate.get(0));
         } else if (sessione.getTipoSessione() == TipoSessione.votoOrdinale) {
-            //Registra scheda elettorale
-        } else if (sessione.getTipoSessione() == TipoSessione.referendum) {
-            //Registra scheda elettorale
+            if(!selectedCandidate.isEmpty()) votaCandidatoDAO.votaCandidatoOrdinale(this.sessione.getId(), this.elettore.getId(), selectedCandidate);
+            else if(!selectedparty.isEmpty()) votaPartitoDAO.votaPartitoOrdinale(this.sessione.getId(), this.elettore.getId(), selectedparty);
+        } else if (sessione.getTipoSessione() == TipoSessione.referendum) {      
+            referendumDAO.votaReferendum(this.sessione.getId(), this.elettore.getId(), selectedOption);
         }
 
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -138,19 +156,21 @@ public class VotingController extends Controller {
 
     private void buildCandidateTable(Partito filter) {
         Optional<Partito> pt = Optional.ofNullable(filter);
-        List<Candidato> c = getCandidati();
+        List<Candidato> c = sessioneDAO.getCandidati(this.sessione.getId());
         Iterator<Candidato> ic = c.iterator();
+
+        ImplCandidatoDAO candidatoDAO = ImplCandidatoDAO.getInstance();
 
         candidateTable = new TableView<Candidato>();
 
         TableColumn<Candidato, String> partito = new TableColumn<>("Partito/Gruppo");
 
-        partito.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getPartito().getNome()));
+        partito.setCellValueFactory(param -> new SimpleObjectProperty<>( candidatoDAO.getPartito(param.getValue().getId() )));
 
         TableColumn<Candidato, String> candidato = new TableColumn<>("Candidato");
 
         candidato.setCellValueFactory(
-                param -> new SimpleObjectProperty<>(param.getValue().getPersona().getCompleteName()));
+                param -> new SimpleObjectProperty<>(candidatoDAO.getNomeCompleto(param.getValue().getId())));
 
         voteButtonToTableCandidate();
 
@@ -160,7 +180,7 @@ public class VotingController extends Controller {
         while (ic.hasNext()) {
             Candidato nextCandidato = ic.next();
             if(pt.isPresent()){
-                if(nextCandidato.getPartito().equals(filter)){
+                if(nextCandidato.getIdPartito().equals(filter.getId())){
                     candidateTable.getItems().add(nextCandidato);
                 }
             }else{
@@ -179,7 +199,7 @@ public class VotingController extends Controller {
 
     // Party option table
     private void buildPartyTable() {
-        List<Partito> p = getPartito();
+        List<Partito> p = sessioneDAO.getPartiti(this.sessione.getId());
         Iterator<Partito> ip = p.iterator();
 
         partyTeble = new TableView<Partito>();
@@ -205,7 +225,7 @@ public class VotingController extends Controller {
 
     // Table button
     private void voteButtonToTableCandidate() {
-        TableColumn<Candidato, Void> colBtn = new TableColumn("Vote");
+        TableColumn<Candidato, Void> colBtn = new TableColumn<Candidato, Void>("Vote");
         Callback<TableColumn<Candidato, Void>, TableCell<Candidato, Void>> cellFactory = new Callback<TableColumn<Candidato, Void>, TableCell<Candidato, Void>>() {
             @Override
             public TableCell<Candidato, Void> call(final TableColumn<Candidato, Void> param) {
@@ -228,7 +248,6 @@ public class VotingController extends Controller {
                             //Voting
                             if(!selectedCandidate.contains(c)) selectedCandidate.add(c);
                             if(sessione.getTipoSessione()==TipoSessione.votoCategorico){
-                                
                                 candidateTable.setDisable(true);
                                 candidateTable.setOpacity(1);
                             }
@@ -256,7 +275,7 @@ public class VotingController extends Controller {
     }
 
     private void voteButtonToTableParty() {
-        TableColumn<Partito, Void> colBtn = new TableColumn("Vote");
+        TableColumn<Partito, Void> colBtn = new TableColumn<Partito, Void> ("Vote");
 
         Callback<TableColumn<Partito, Void>, TableCell<Partito, Void>> cellFactory = new Callback<TableColumn<Partito, Void>, TableCell<Partito, Void>>() {
             @Override
@@ -321,49 +340,5 @@ public class VotingController extends Controller {
         selectedOption = false;
     }
 
-
-    // DB Test
-
-    // DB managaer function
-    public String getRefQuesito(String sessionId) {
-        Referendum refTest = new Referendum(this.sessione, "Vuoi abolire la schiavitú?");
-        return refTest.getQuesito();
-    }
-
-    public static List<Candidato> getCandidati() {
-        List<Candidato> c = new ArrayList<>();
-        Partito p1 = new Partito("1234", "Lega Nord", new Date());
-        Partito p2 = new Partito("4321", "Partito Democratico", new Date());
-        Partito p3 = new Partito("5678", "Forza Italia", new Date());
-
-        Persona pr1 = new Persona("SLVMTT73C09F205R", true, "Matteo", "Salvini", new Date(3, 9, 1973), "MI");
-        Persona pr2 = new Persona("MLNGRG77A55H501C", false, "Giorgia", "Meloni", new Date(15, 1, 1977), "RM");
-        Persona pr3 = new Persona("LTTNRC66P20H501D", true, "Enrico", "Letta", new Date(20, 8, 1966), "RM");
-
-        Candidato c1 = new Candidato("1234", "Segretario", pr1, p1);
-        Candidato c2 = new Candidato("4321", "Segretario", pr2, p2);
-        Candidato c3 = new Candidato("5678", "Segretario", pr3, p3);
-
-        c.add(c1);
-        c.add(c2);
-        c.add(c3);
-
-        return c;
-    }
-
-    public static List<Partito> getPartito() {
-        List<Partito> p = new ArrayList<>();
-
-        Partito p1 = new Partito("1234", "Lega Nord", new Date());
-        Partito p2 = new Partito("4321", "Partito Democratico", new Date());
-        Partito p3 = new Partito("5678", "Forza Italia", new Date());
-
-        p.add(p1);
-        p.add(p2);
-        p.add(p3);
-
-        return p;
-
-    }
 
 }

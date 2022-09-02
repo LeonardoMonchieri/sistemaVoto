@@ -2,6 +2,10 @@ package org.fazioMonchieri.controllers;
 
 import java.util.ArrayList;
 
+import org.fazioMonchieri.data.ImplElettoreDAO;
+import org.fazioMonchieri.data.ImplReferendumDAO;
+import org.fazioMonchieri.data.ImplVotaDAO;
+import org.fazioMonchieri.models.Elettore;
 import org.fazioMonchieri.models.Seggio;
 import org.fazioMonchieri.models.Sessione;
 import org.fazioMonchieri.utilities.Controller;
@@ -41,6 +45,10 @@ public class LocalAccessController extends Controller{
     @FXML
     void login() throws Exception {
         
+        ImplVotaDAO votaDAO = ImplVotaDAO.getInstance();
+        ImplElettoreDAO elettoreDAO = ImplElettoreDAO.getInstance();
+
+
         String CF = cf.getText().toString().replaceAll("\\s", "");
         
         if(CF.length()==0){
@@ -48,11 +56,14 @@ public class LocalAccessController extends Controller{
             result.setText("Inserisci codice fiscale valido");   
             return;
         }
-        
-        boolean check=checkSessionAccess(CF,this.sessione.getId());
+        Elettore elettore = elettoreDAO.getElettore(CF);
+        boolean check=votaDAO.hasVoted(elettore.getId(),this.sessione.getId());
 
         if(check){
-            navigate("votingView", sessione);
+            ArrayList<Object> params = new ArrayList<>();
+            params.add(elettore);
+            params.add(this.sessione);
+            navigate("votingView", params);
         }
         else{
             result.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");

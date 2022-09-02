@@ -4,10 +4,15 @@ import org.fazioMonchieri.models.Sessione;
 import org.fazioMonchieri.models.TipoScrutinio;
 import org.fazioMonchieri.models.TipoSessione;
 import org.fazioMonchieri.models.Partito;
+import org.fazioMonchieri.data.ImplCandidatoDAO;
+import org.fazioMonchieri.data.ImplPartitoDAO;
+import org.fazioMonchieri.data.ImplSessioneDAO;
+import org.fazioMonchieri.data.ImplVotaCandidatoDAO;
+import org.fazioMonchieri.data.ImplVotaPartitoDAO;
+import org.fazioMonchieri.data.VotaCandidatoDAO;
 import org.fazioMonchieri.models.Candidato;
 import org.fazioMonchieri.models.Persona;
 
-import org.fazioMonchieri.utilities.TableViewUtils;
 import org.fazioMonchieri.utilities.Controller;
 
 import javafx.fxml.FXML;
@@ -39,6 +44,14 @@ import java.util.Iterator;
 
 public class SessionCreationOptionsController extends Controller {
 
+    private ImplSessioneDAO sessioneDAO;
+
+    private ImplCandidatoDAO candidatoDAO;
+
+    private ImplVotaCandidatoDAO votaCandidatoDAO;
+
+    private ImplVotaPartitoDAO votaPartitoDAO;
+
     private Sessione sessione;
 
     private Set<Candidato> selectedCandidate;
@@ -63,6 +76,7 @@ public class SessionCreationOptionsController extends Controller {
     @Override
     public void onNavigateFrom(Controller sender, Object parameter) {
         this.sessione = (Sessione) parameter;
+        sessioneDAO = ImplSessioneDAO.getInstance();
     }
 
     @Override
@@ -103,9 +117,9 @@ public class SessionCreationOptionsController extends Controller {
                 warning_alert.showAndWait();
                 return;
             }
-
-            selectedCandidatePrint();
-            // Add Voti candiato
+            for(Candidato c : selectedCandidate){
+                votaCandidatoDAO.createVotaCandidato(this.sessione.getId(), c.getId());
+            }
             if (sessione.getTipoSessione() == TipoSessione.votoCategoricoPreferenza) {
                 getCandidateParty();
                 if(selectedParty.size()<2){
@@ -113,8 +127,9 @@ public class SessionCreationOptionsController extends Controller {
                     warning_alert.showAndWait();
                     return;
                 }
-                selectedPartyPrint();
-                // Add voti partito
+                for(Partito p : selectedParty){
+                    votaPartitoDAO.createVotaPartito(this.sessione.getId(), p.getId());
+                }
             }
         } else {
             if(selectedParty.size()<2){
@@ -122,40 +137,41 @@ public class SessionCreationOptionsController extends Controller {
                 warning_alert.showAndWait();
                 return;
             }
-            selectedPartyPrint();
-            // Add voti partito
-        }
-       
-        navigate("GestoreView", sessione.getGestore());
+            for(Partito p : selectedParty){
+                votaPartitoDAO.createVotaPartito(this.sessione.getId(), p.getId());
+            }
+        } 
+        navigate("GestoreView", sessioneDAO.getGestore(this.sessione.getId()));
     }
 
     @FXML
     public void cancelSession(){
         //Delete Session from db
+        sessioneDAO.delete(this.sessione.getId());
         Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setHeaderText("Creazione avvenuta con successo");
+        alert.setHeaderText("Operazione annullata");
         alert.setContentText("Verrai reinderizzato alla tua pagina gestore");
         alert.showAndWait();
-        navigate("GestoreView", this.sessione.getGestore());
+        navigate("GestoreView", sessioneDAO.getGestore(this.sessione.getId()));
     }
 
     // Table maker
 
     // Candidate option Table
     private void optionsCandidateTabeleBuilder() {
-        List<Candidato> c = getCandidati();
+        List<Candidato> c = sessioneDAO.getCandidati(this.sessione.getId());
         Iterator<Candidato> ic = c.iterator();
 
         optionsTable = new TableView<Candidato>();
 
         TableColumn<Candidato, String> partito = new TableColumn<>("Partito/Gruppo");
 
-        partito.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getPartito().getNome()));
+        partito.setCellValueFactory(param -> new SimpleObjectProperty<>(candidatoDAO.getPartito(param.getValue().getId())));
 
         TableColumn<Candidato, String> candidato = new TableColumn<>("Candidato");
 
         candidato.setCellValueFactory(
-                param -> new SimpleObjectProperty<>(param.getValue().getPersona().getCompleteName()));
+            param -> new SimpleObjectProperty<>(candidatoDAO.getNomeCompleto(param.getValue().getId())));
 
         addButtonToTableCandidate();
 
@@ -175,7 +191,7 @@ public class SessionCreationOptionsController extends Controller {
 
     // Party option table
     private void optionsPartyTableBuilder() {
-        List<Partito> p = getPartito(0);
+        List<Partito> p = sessioneDAO.getPartiti(this.sessione.getId());
         Iterator<Partito> ip = p.iterator();
 
         optionsTable = new TableView<Partito>();
@@ -204,12 +220,12 @@ public class SessionCreationOptionsController extends Controller {
 
         TableColumn<Candidato, String> partito = new TableColumn<>("Partito/Gruppo");
 
-        partito.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getPartito().getNome()));
+        partito.setCellValueFactory(param -> new SimpleObjectProperty<>(candidatoDAO.getPartito(param.getValue().getId())));
 
         TableColumn<Candidato, String> candidato = new TableColumn<>("Candidato");
 
         candidato.setCellValueFactory(
-                param -> new SimpleObjectProperty<>(param.getValue().getPersona().getCompleteName()));
+            param -> new SimpleObjectProperty<>(candidatoDAO.getNomeCompleto(param.getValue().getId())));
 
         subButtonToTableCandidate();
 
@@ -287,7 +303,7 @@ public class SessionCreationOptionsController extends Controller {
     }
 
     private void addButtonToTableParty() {
-        TableColumn<Partito, Void> colBtn = new TableColumn("Add");
+        TableColumn<Partito, Void> colBtn = new TableColumn<Partito, Void>("Add");
 
         Callback<TableColumn<Partito, Void>, TableCell<Partito, Void>> cellFactory = new Callback<TableColumn<Partito, Void>, TableCell<Partito, Void>>() {
             @Override
@@ -326,7 +342,7 @@ public class SessionCreationOptionsController extends Controller {
     }
 
     private void subButtonToTableCandidate() {
-        TableColumn<Candidato, Void> colBtn = new TableColumn("Remove");
+        TableColumn<Candidato, Void> colBtn = new TableColumn<Candidato, Void>("Remove");
 
         Callback<TableColumn<Candidato, Void>, TableCell<Candidato, Void>> cellFactory = new Callback<TableColumn<Candidato, Void>, TableCell<Candidato, Void>>() {
             @Override
@@ -365,7 +381,7 @@ public class SessionCreationOptionsController extends Controller {
     }
 
     private void subButtonToTableParty() {
-        TableColumn<Partito, Void> colBtn = new TableColumn("Remove");
+        TableColumn<Partito, Void> colBtn = new TableColumn<Partito,Void>("Remove");
 
         Callback<TableColumn<Partito, Void>, TableCell<Partito, Void>> cellFactory = new Callback<TableColumn<Partito, Void>, TableCell<Partito, Void>>() {
             @Override
@@ -405,65 +421,8 @@ public class SessionCreationOptionsController extends Controller {
 
     public void getCandidateParty() {
         for (Candidato c : selectedCandidate) {
-            selectedParty.add(c.getPartito());
+            selectedParty.add(candidatoDAO.getPartito(c.getId()));
         }
-    }
-
-    // DB Manager
-    public List<Candidato> getCandidati() {
-        List<Candidato> c = new ArrayList<>();
-        Partito p1 = new Partito("1234", "Lega Nord", new Date());
-        Partito p2 = new Partito("4321", "Partito Democratico", new Date());
-        Partito p3 = new Partito("5678", "Forza Italia", new Date());
-
-        Persona pr1 = new Persona("SLVMTT73C09F205R", true, "Matteo", "Salvini", new Date(3, 9, 1973), "MI");
-        Persona pr2 = new Persona("MLNGRG77A55H501C", false, "Giorgia", "Meloni", new Date(15, 1, 1977), "RM");
-        Persona pr3 = new Persona("LTTNRC66P20H501D", true, "Enrico", "Letta", new Date(20, 8, 1966), "RM");
-
-        Candidato c1 = new Candidato("1234", "Segretario", pr1, p1);
-        Candidato c2 = new Candidato("4321", "Segretario", pr2, p2);
-        Candidato c3 = new Candidato("5678", "Segretario", pr3, p3);
-
-        c.add(c1);
-        c.add(c2);
-        c.add(c3);
-
-        return c;
-    }
-
-    public List<Partito> getPartito(int i) {
-        List<Partito> p = new ArrayList<>();
-
-        Partito p1 = new Partito("1234", "Lega Nord", new Date());
-        Partito p2 = new Partito("4321", "Partito Democratico", new Date());
-        Partito p3 = new Partito("5678", "Forza Italia", new Date());
-
-        p.add(p1);
-        p.add(p2);
-        p.add(p3);
-        if (i == 0)
-            return p;
-
-        return null;
-
-    }
-
-    //TEST
-    public void selectedCandidatePrint(){
-        System.out.println("CANDIDATI:");
-        for(Candidato c : selectedCandidate){
-            System.out.println("-"+c.getPersona().getCompleteName());
-        }
-        return;
-    }
-
-
-    public void selectedPartyPrint(){
-        System.out.println("PARTIT:");
-        for(Partito p : selectedParty){
-            System.out.println("-"+p.getNome());
-        }
-        return;
     }
 
 }

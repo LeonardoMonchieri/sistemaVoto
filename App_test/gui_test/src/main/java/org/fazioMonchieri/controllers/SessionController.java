@@ -4,6 +4,8 @@ import org.fazioMonchieri.models.Referendum;
 import org.fazioMonchieri.models.Sessione;
 import org.fazioMonchieri.models.TipoSessione;
 import org.fazioMonchieri.utilities.Controller;
+import org.fazioMonchieri.data.ImplCandidatoDAO;
+import org.fazioMonchieri.data.ImplSessioneDAO;
 import org.fazioMonchieri.models.Candidato;
 import org.fazioMonchieri.models.Partito;
 import org.fazioMonchieri.models.Persona;
@@ -33,6 +35,8 @@ import java.util.Iterator;
 public class SessionController extends Controller {
 
     private Sessione sessione;
+
+    private ImplSessioneDAO sessioneDAO;
 
     @FXML
     private Label sessionTitle;
@@ -79,25 +83,25 @@ public class SessionController extends Controller {
     @Override
     public void onNavigateFrom(Controller sender, Object parameter) {
         this.sessione = (Sessione) parameter;
+        this.sessioneDAO = ImplSessioneDAO.getInstance();
     }
 
     @Override
     public void init() {
         sessionTitle.setText(sessione.getNome());
         sessionId.setText("Session id: " + sessione.getId());
-        sessionPw.setText("Nome: " + sessione.getPassword());
-        sessionAdmin.setText("Gestore: " + sessione.getGestore().getUsername());
+        sessionAdmin.setText("Gestore: " + sessione.getIdGestore());
 
 
         TipoSessione sessionType = this.sessione.getTipoSessione();
         if (sessionType == TipoSessione.referendum) {
             sessionVotingType.setText("Tipo di votazione: referendum");
             quesitoCandidati.setText("Quesito:");
-            question.setText("\"" + getRefQuesito(this.sessione.getId()) + "\"");
+            question.setText("\"" + sessioneDAO.getQuesitoReferendum(this.sessione.getId()) + "\"");
         } else {
             quesitoCandidati.setText("Candidati:");
             if (sessionType == TipoSessione.votoCategorico || sessionType == TipoSessione.votoOrdinale) {
-                if (getPartito(0) == null)
+                if (sessioneDAO.getPartiti(this.sessione.getId()) == null)
                     candidateTabeleBuilder();
                 else
                     partyTableBuilder();
@@ -130,19 +134,19 @@ public class SessionController extends Controller {
         String pattern = "dd/MM/yyyy HH:mm:ss";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
-        if (this.sessione.isClosed() == 0)
+        if (this.sessione.status() == 0)
             OpenClose.setText("Apri");
         else {
             sessionOpenDate.setText("Data apertura: " + simpleDateFormat.format(this.sessione.getDataApertura()));
             buildPieChart();
 
-            if (this.sessione.isClosed() == 1) {
+            if (this.sessione.status() == 1) {
                 OpenClose.setOpacity(0);
                 OpenClose.setDisable(true);
                 winner.setDisable(false);
                 winner.setText("Vincitore:");
                 sessionCloseLabel.setText("Data chiusura: " + simpleDateFormat.format(this.sessione.getDataChiusura()));
-            } else if (this.sessione.isClosed() == 2)
+            } else if (this.sessione.status() == 2)
                 OpenClose.setText("Chiudi");
 
         }
@@ -150,33 +154,32 @@ public class SessionController extends Controller {
 
     @FXML
     public void back() {
-        navigate("GestoreView", this.sessione.getGestore());
+        navigate("GestoreView", sessioneDAO.getGestore(this.sessione.getId()));
     }
 
     @FXML
     public void updateSessionState(){
-        if (this.sessione.isClosed() == 0) this.sessione.setOpen(); //Apri la sessione
-        else if(this.sessione.isClosed() == 2) this.sessione.setClose(); //Chiudi sessione
-        else{
-            navigate("EsitiView", this.sessione.getGestore());
-        }
+        if (this.sessione.status() == 0) sessioneDAO.openSessione(this.sessione.getId(), this.sessione.getIdGestore()); //Apri la sessione
+        else if(this.sessione.status() == 2) sessioneDAO.closeSessione(this.sessione.getId(), this.sessione.getIdGestore()); //Chiudi sessione
         navigate("SessionView", this.sessione);
     }
 
     //Table maker
     private void candidateTabeleBuilder() {
-        List<Candidato> c = getCandidati();
+        ImplCandidatoDAO candidatoDAO=ImplCandidatoDAO.getInstance();
+
+        List<Candidato> c = sessioneDAO.getCandidati(this.sessione.getId());
         Iterator<Candidato> ic = c.iterator();
 
         TableView<Candidato> candidateTable = new TableView<Candidato>();
         TableColumn<Candidato, String> partito = new TableColumn<>("Partito/Gruppo");
 
-        partito.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getPartito().getNome()));
+        partito.setCellValueFactory(param -> new SimpleObjectProperty<>(candidatoDAO.getPartito(param.getValue().getId())));
 
         TableColumn<Candidato, String> candidato = new TableColumn<>("Candidato");
 
         candidato.setCellValueFactory(
-                param -> new SimpleObjectProperty<>(param.getValue().getPersona().getCompleteName()));
+                param -> new SimpleObjectProperty<>(candidatoDAO.getNomeCompleto(param.getValue().getId())));
 
         candidateTable.getColumns().add(partito);
         candidateTable.getColumns().add(candidato);
@@ -194,7 +197,7 @@ public class SessionController extends Controller {
 
     private void partyTableBuilder() {
         System.out.println("partyBuilder");
-        List<Partito> p = getPartito(0);
+        List<Partito> p = sessioneDAO.getPartiti(this.sessione.getId());
         Iterator<Partito> ip = p.iterator();
 
         TableView<Partito> partyTable = new TableView<Partito>();
@@ -216,64 +219,16 @@ public class SessionController extends Controller {
     }
 
     private void buildPieChart() {
-        int nonVotanti = getTotElettori() - this.sessione.getVotiTotali();
+        int votanti = this.sessioneDAO.getVotanti(this.sessione.getId());
+        int nonVotanti = this.sessioneDAO.getElettori() - votanti ;
         ObservableList<PieChart.Data> turnOutData = FXCollections.observableArrayList(
                 new PieChart.Data("Non votanti", nonVotanti),
-                new PieChart.Data("Votanti", this.sessione.getVotiTotali()));
+                new PieChart.Data("Votanti", votanti));
 
         pieChartTurnOut.setData(turnOutData);
         pieChartTurnOut.setDisable(false);
         pieChartTurnOut.setTitle("Affluenza");
     }
 
-    // DB managaer function
-    public String getRefQuesito(String sessionId) {
-        Referendum refTest = new Referendum(this.sessione, "Vuoi abolire la schiavitú?");
-        return refTest.getQuesito();
-    }
-
-    public int getTotElettori() {
-        return 100;
-    }
-
-    public List<Candidato> getCandidati() {
-        List<Candidato> c = new ArrayList<>();
-        Partito p1 = new Partito("1234", "Lega Nord", new Date());
-        Partito p2 = new Partito("4321", "Partito Democratico", new Date());
-        Partito p3 = new Partito("5678", "Forza Italia", new Date());
-
-        Persona pr1 = new Persona("SLVMTT73C09F205R", true, "Matteo", "Salvini", new Date(3, 9, 1973), "MI");
-        Persona pr2 = new Persona("MLNGRG77A55H501C", false, "Giorgia", "Meloni", new Date(15, 1, 1977), "RM");
-        Persona pr3 = new Persona("LTTNRC66P20H501D", true, "Enrico", "Letta", new Date(20, 8, 1966), "RM");
-
-        Candidato c1 = new Candidato("1234", "Segretario", pr1, p1);
-        Candidato c2 = new Candidato("4321", "Segretario", pr2, p2);
-        Candidato c3 = new Candidato("5678", "Segretario", pr3, p3);
-
-        c.add(c1);
-        c.add(c2);
-        c.add(c3);
-
-        return c;
-    }
-
-    public List<Partito> getPartito(int i) {
-        List<Partito> p = new ArrayList<>();
-
-        Partito p1 = new Partito("1234", "Lega Nord", new Date());
-        Partito p2 = new Partito("4321", "Partito Democratico", new Date());
-        Partito p3 = new Partito("5678", "Forza Italia", new Date());
-
-        p.add(p1);
-        p.add(p2);
-        p.add(p3);
-        if (i == 0)
-            return p;
-
-        return null;
-
-    }
-
-   
-
+    
 }

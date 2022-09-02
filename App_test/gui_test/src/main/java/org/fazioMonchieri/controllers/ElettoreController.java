@@ -2,11 +2,9 @@ package org.fazioMonchieri.controllers;
 
 import org.fazioMonchieri.utilities.Controller;
 import org.fazioMonchieri.models.Persona;
+import org.fazioMonchieri.data.ImplElettoreDAO;
 import org.fazioMonchieri.models.Elettore;
-import org.fazioMonchieri.models.Gestore;
 import org.fazioMonchieri.models.Sessione;
-import org.fazioMonchieri.models.TipoScrutinio;
-import org.fazioMonchieri.models.TipoSessione;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,8 +23,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 public class ElettoreController  extends Controller{
 
     private Elettore elettore;
-
-    private Persona persona;
 
     @FXML
     private Label name;
@@ -50,12 +46,15 @@ public class ElettoreController  extends Controller{
     @Override
     public void onNavigateFrom(Controller sender, Object parameter){
         this.elettore = (Elettore) parameter;
-        this.persona = elettore.getPersona();
     }
 
     @Override
     public void init() {
-        List<Sessione> sessioni = getSessioni();
+        ImplElettoreDAO elettoreDAO = ImplElettoreDAO.getInstance();
+
+        Persona persona = elettoreDAO.getPersona(this.elettore.getCodiceFiscale());
+
+        List<Sessione> sessioni = elettoreDAO.getSessioniElettore(this.elettore.getId());
         Iterator<Sessione> is = sessioni.iterator();
  
         sessionName.setCellValueFactory(new PropertyValueFactory<Sessione,String>("nome"));
@@ -89,7 +88,7 @@ public class ElettoreController  extends Controller{
         sessionTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 List<Object> param = new ArrayList<>();
-                param.add(this.persona);
+                param.add(this.cf);
                 param.add(newSelection);
                 navigate("VotingView",param);
             }
@@ -98,35 +97,12 @@ public class ElettoreController  extends Controller{
     
         name.setText("Nome: "+persona.getNome());
         surname.setText("Nome: "+persona.getCognome());
-        cf.setText("Nome: "+persona.getCodiceFiscale());
+        cf.setText("Nome: "+this.elettore.getCodiceFiscale());
     }
 
     @FXML
     public void logOut() {
         navigate("HomeView");
     }
-
-    private List<Sessione> getSessioni(){
-
-        Gestore g=new Gestore("fafasf", "Marione", "dasdad", this.persona);
-        List<Sessione> s= new ArrayList<Sessione>();
-        Sessione s1 = new Sessione("dasdea", "Referendum legalizzazione", "dasdad",  TipoSessione.referendum,TipoScrutinio.referendumConQuorum, g);
-        Sessione s2 = new Sessione("lojk", "Elezioni categorico", "kljkl",TipoSessione.votoCategorico, TipoScrutinio.maggioranza,   g);
-        Sessione s3 = new Sessione("lojk", "Elezioni categorico preferenziale", "kljkl",TipoSessione.votoCategoricoPreferenza, TipoScrutinio.maggioranza,   g);
-        Sessione s4 = new Sessione("lojk", "Elezioni ordinale", "kljkl",TipoSessione.votoOrdinale, TipoScrutinio.maggioranza,   g);
-        s1.setOpen();
-        s2.setOpen();
-        s1.setClose();
-        s2.setClose();
-        s.add(s1);
-        s.add(s2);
-        s.add(s3);
-        s.add(s4);
-        
-        return s;
-    }
-
-    
-    
  
 }

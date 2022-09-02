@@ -13,10 +13,10 @@ public class Seggio {
     private String citta;
     private String provincia;
     
-    public Seggio(Integer id, String via, String CAP, String citta, String provincia){
+    public Seggio(Integer id, String via, String cap, String citta, String provincia){
         this.id = id;
         this.via = via;
-        this.CAP = CAP;
+        this.CAP = cap;
         this.citta = citta;
         this.provincia = provincia;
     }
@@ -40,5 +40,5 @@ public class Seggio {
     public String getProvincia(){
         return provincia;
     }
-
+    
 }

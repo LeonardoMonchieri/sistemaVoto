@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.fazioMonchieri.data.ImplPartitoDAO;
+import org.fazioMonchieri.data.ImplSessioneDAO;
 import org.fazioMonchieri.models.Gestore;
 import org.fazioMonchieri.models.Partito;
 import org.fazioMonchieri.utilities.Controller;
@@ -37,7 +39,9 @@ public class CadidateCreationController extends Controller{
 
     @Override
     public void init() {
-        List<Partito> partiti = getPartito();
+
+        ImplPartitoDAO partitoDAO = ImplPartitoDAO.getInstance();
+        List<Partito> partiti = partitoDAO.getPartiti();
         
         for(Partito p : partiti){
             party.getItems().add(p.getNome());
@@ -46,6 +50,8 @@ public class CadidateCreationController extends Controller{
     }
 
     public void create(){
+
+        
         Alert warningAlert = new Alert(AlertType.WARNING);
         String error=""; 
 
@@ -93,19 +99,6 @@ public class CadidateCreationController extends Controller{
 
     public void back(){
         navigate("GestoreView", this.gestore);
-    }
-
-
-    //DB
-    public List<Partito> getPartito() {
-        List<Partito> p = new ArrayList<>();
-        Partito p1 = new Partito("1234", "Lega Nord", new Date());
-        Partito p2 = new Partito("4321", "Partito Democratico", new Date());
-        Partito p3 = new Partito("5678", "Forza Italia", new Date());
-        p.add(p1);
-        p.add(p2);
-        p.add(p3);    
-        return p;
     }
 
 }

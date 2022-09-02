@@ -53,5 +53,12 @@ public class Sessione {
     public Integer getIdGestore(){
         return idGestore;
     }
+
+
+    public int status(){
+        if(dataApertura==null) return 0; 
+        else if(dataChiusura!=null) return 1;
+        else return 2;
+    }
     
 }

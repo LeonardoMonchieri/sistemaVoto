@@ -3,16 +3,14 @@ package org.fazioMonchieri.controllers;
 import org.fazioMonchieri.utilities.Controller;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.fazioMonchieri.data.ImplGestoreDAO;
 import org.fazioMonchieri.models.Gestore;
 import org.fazioMonchieri.models.Persona;
 import org.fazioMonchieri.models.Sessione;
-import org.fazioMonchieri.models.TipoScrutinio;
-import org.fazioMonchieri.models.TipoSessione;
 
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -31,7 +29,6 @@ import javafx.scene.Node;
 public class GestoreController extends Controller {
 
     private Gestore gestore;
-    private Persona persona;
 
     @FXML
     private Label name;
@@ -66,17 +63,16 @@ public class GestoreController extends Controller {
     @Override
     public void onNavigateFrom(Controller sender, Object parameter) {
         this.gestore = (Gestore) parameter;
-        this.persona = gestore.getPersona();
     }
 
     @Override
     public void init() {
-        List<Sessione> sessioni = getSessioni();
+        ImplGestoreDAO gestoreDAO= ImplGestoreDAO.getInstance();
+
+        Persona persona = gestoreDAO.getPersona(this.gestore.getCodiceFiscale());
+
+        List<Sessione> sessioni = gestoreDAO.getSessioniGestore(this.gestore.getId());
         Iterator<Sessione> is = sessioni.iterator();
-
-        String pattern = "dd/MM/yyyy HH:mm:ss";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-
 
         sessionId.setCellValueFactory(new PropertyValueFactory<Sessione, String>("id"));
 
@@ -127,7 +123,7 @@ public class GestoreController extends Controller {
             return cell;
         });
 
-        status.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().isClosed()));
+        status.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().status()));
 
         status.setCellFactory(col -> {
 
@@ -205,26 +201,4 @@ public class GestoreController extends Controller {
         navigate("PartyCreationView",this.gestore);
     }
 
-
-    private List<Sessione> getSessioni() {
-
-        
-        List<Sessione> s = new ArrayList<Sessione>();
-        Sessione s1 = new Sessione("dasdea", "Elezione Creata", "dasdad", TipoSessione.votoOrdinale,
-                TipoScrutinio.maggioranza, this.gestore);
-        Sessione s2 = new Sessione("lojk", "Elezione Aperta", "kljkl", TipoSessione.referendum,
-                TipoScrutinio.maggioranza, this.gestore);
-        Sessione s3 = new Sessione("hgfd", "Elezione Chiusa", "dada", TipoSessione.votoCategoricoPreferenza,
-                TipoScrutinio.maggioranza, this.gestore);
-
-        s2.setOpen();
-
-        s3.setOpen();
-        s3.setClose();
-
-        s.add(s1);
-        s.add(s2);
-        s.add(s3);
-        return s;
-    }
 }

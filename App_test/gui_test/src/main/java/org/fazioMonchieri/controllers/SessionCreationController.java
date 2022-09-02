@@ -1,6 +1,11 @@
 package org.fazioMonchieri.controllers;
 
 import org.fazioMonchieri.utilities.Controller;
+
+
+import java.sql.Timestamp;
+
+import org.fazioMonchieri.data.ImplSessioneDAO;
 import org.fazioMonchieri.models.Gestore;
 import org.fazioMonchieri.models.Sessione;
 import org.fazioMonchieri.models.TipoScrutinio;
@@ -9,19 +14,21 @@ import org.fazioMonchieri.models.TipoSessione;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.beans.value.ObservableValue;
 
 public class SessionCreationController extends Controller {
+
+    private ImplSessioneDAO sessioneDAO;
 
     private Gestore gestore;
 
     @FXML
     private TextField sessionTitle;
+
+    @FXML
+    private TextField sessionPw;
 
     @FXML
     private ChoiceBox<TipoSessione> sessionType;
@@ -36,6 +43,7 @@ public class SessionCreationController extends Controller {
 
     @Override
     public void init() {
+
         sessionType.getItems().add(null);
         sessionType.getItems().add(TipoSessione.referendum);
         sessionType.getItems().add(TipoSessione.votoCategorico);
@@ -65,6 +73,7 @@ public class SessionCreationController extends Controller {
         TipoScrutinio selectedBalot = sessionBallot.getValue();
         TipoSessione  selectedType = sessionType.getValue();
         String nome = sessionTitle.getText().toString().replaceAll("\\s", "");
+        String password = sessionPw.getText().toString().replaceAll("\\s", "");
         Alert alert = new Alert(AlertType.WARNING);
 
         String msg ="";
@@ -85,7 +94,13 @@ public class SessionCreationController extends Controller {
             alert.showAndWait();
             return;
         }
-        Sessione sessione = new Sessione("dada", nome, "dasda ", selectedType, selectedBalot, this.gestore);
+
+        Integer sessionId = buildSessionId(nome,selectedBalot,selectedType,this.gestore); 
+
+        sessioneDAO.createSessione(sessionId, nome,
+        selectedType, selectedBalot, password, this.gestore.getId());
+        
+        Sessione sessione = new Sessione(sessionId, nome, null, null, selectedType, selectedBalot, this.gestore.getId());
         
         if(selectedType==TipoSessione.referendum) navigate("SessionCreationReferendumView", sessione);
         else navigate("SessionCreationOptionsView", sessione);
@@ -160,6 +175,62 @@ public class SessionCreationController extends Controller {
         if( sessionType.getItems().contains(TipoSessione.referendum)) return;
         sessionType.getItems().add(TipoSessione.referendum);
         return;
+
+    }
+
+
+    private Integer buildSessionId(String nome, TipoScrutinio selectedBalot, TipoSessione selectedType, Gestore gestore){
+        String id="";
+
+        nome.toUpperCase();
+        nome.replaceAll(" ", "");
+
+        for(int i=0; i<nome.length();i++){
+            if(nome.charAt(i)!='A' || nome.charAt(i)!='E' || nome.charAt(i)!='I' || nome.charAt(i)!='O' || nome.charAt(i)!='U'){
+                id+=(int) nome.charAt(i);
+            }
+        }
+        
+        switch(selectedBalot){
+            case maggioranza :
+                id+="1";
+            break;
+
+            case maggioranzaAssoluta:
+                id+="2";
+            break;
+
+            case referendumConQuorum:
+                id+="3";
+            break;
+
+            case referendumSenzaQuorum:
+                id+="4";
+            break;
+        }
+    
+      
+        switch(selectedType){
+            case referendum :
+                id+="1";
+            break;
+
+            case votoCategorico:
+                id+="2";
+            break;
+
+            case votoCategoricoPreferenza:
+                id+="3";
+            break;
+
+            case votoOrdinale:
+                id+="4";
+            break;
+        }
+
+        id+= new Timestamp(System.currentTimeMillis()).toString();
+
+        return Integer.parseInt(id);
 
     }
 

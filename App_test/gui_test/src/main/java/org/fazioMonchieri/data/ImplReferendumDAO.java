@@ -37,7 +37,7 @@ public class ImplReferendumDAO implements ReferendumDAO, Observable{
     }
     
     @Override
-    public void createReferendum(Integer id, String quesito, Boolean quorum){
+    public void createReferndum(Integer id, String quesito, Boolean quorum){
         
         //Apertura della connessione.
         Connection connection = null;

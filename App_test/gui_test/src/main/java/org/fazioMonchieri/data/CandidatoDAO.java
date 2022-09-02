@@ -25,10 +25,5 @@ public interface CandidatoDAO {
     //Permette di restituire tutti i candidati.
     public List<Candidato> getCandidati();
     
-    //Permette di votare ad una votazione ordinale di candidati in una sessione.
-    public void votaCandidatoOrdinale(Integer id, Integer elettoreId, List<Candidato> candidati) throws IOException;
-    
-    //Permette di votare ad una votazione categorica di candidati in una sessione.
-    public void votaCandidatoCategorico(Integer id, Integer elettoreId, Candidato candidato) throws IOException;
     
 }
