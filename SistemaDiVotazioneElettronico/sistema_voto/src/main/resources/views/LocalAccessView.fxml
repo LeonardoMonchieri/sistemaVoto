@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="CENTER" hgap="10.0" style="-fx-background-color: #0066cc;" vgap="10" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.fazioMonchieri.controllers.LocalAccessController">
+   <children>
+      <HBox GridPane.columnIndex="1" GridPane.rowIndex="7" />
+      <Label fx:id="result" alignment="CENTER" textFill="RED" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
+      <HBox GridPane.columnIndex="1">
+         <children>
+            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../Image/rep_ita_white.png" />
+               </image>
+            </ImageView>
+            <Label fx:id="sessionTitle" textFill="WHITE">
+               <font>
+                  <Font name="Arial" size="45.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
+      <HBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+         <children>
+            <Label alignment="CENTER_RIGHT" prefHeight="45.0" prefWidth="197.0" text="Codice Fiscale" textFill="WHITE">
+               <font>
+                  <Font size="30.0" />
+               </font>
+            </Label>
+            <TextField fx:id="cf" prefHeight="40.0" prefWidth="265.0" promptText="Codice Fiscale">
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </TextField>
+         </children>
+      </HBox>
+      <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+         <children>
+            <AnchorPane prefHeight="100.0" prefWidth="476.0">
+               <children>
+                  <Button layoutY="7.0" mnemonicParsing="false" onAction="#back" prefHeight="70.0" prefWidth="120.0" stylesheets="@../style/ButtonStyle.css" text="Back" textFill="WHITE" AnchorPane.leftAnchor="10.0">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Button>
+                  <Button layoutX="330.0" layoutY="7.0" mnemonicParsing="false" onAction="#login" prefHeight="70.0" prefWidth="120.0" text="Login" textFill="WHITE" AnchorPane.rightAnchor="10.0">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                     <stylesheets>
+                        <URL value="@../style/HomeStyle.css" />
+                        <URL value="@../style/ButtonStyle.css" />
+                     </stylesheets>
+                  </Button>
+               </children>
+            </AnchorPane>
+         </children>
+      </HBox>
+   </children>
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0" />
+      <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0" />
+      <RowConstraints maxHeight="24.0" minHeight="0.0" prefHeight="0.0" />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+</GridPane>
