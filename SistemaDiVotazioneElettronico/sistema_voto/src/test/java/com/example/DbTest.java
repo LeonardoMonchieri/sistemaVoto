@@ -2,6 +2,7 @@ package com.example;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 import org.fazioMonchieri.data.ImplCandidatoDAO;
@@ -45,13 +46,23 @@ public class DbTest{
   @DisplayName("Test Creazione Utente")
   @Test
   void testCreazioneUtente() {
-    elettoreDAO.createElettore("Elettore2", "Elettore2", "RSSMRA80A01C933H");
+    try{
+      elettoreDAO.createElettore("Elettore2", "Elettore2", "RSSMRA80A01C933H");
+    }catch(SQLException se){
+      System.out.println("SQL EXCEPTION during candidate creation:\n"+se);
+    }
+   
   }
 
   @DisplayName("Test Creazione Partito e Candidato")
   @Test
   void testCreazionePartitoCandidato() {
-    partitoDAO.createPartito("Partito1", Date.valueOf(LocalDate.now()));
+    try{
+      partitoDAO.createPartito("Partito1", Date.valueOf(LocalDate.now()));
+    }catch(SQLException se){
+      System.out.println("SQL EXCEPTION during party creation:\n"+se);
+    }
+    
     candidatoDAO.createCandidato("Ruolo1", "RSSMRA80A01C933H", "Partito1");
   }
 
