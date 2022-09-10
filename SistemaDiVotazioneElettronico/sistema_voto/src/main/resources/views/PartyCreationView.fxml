@@ -58,7 +58,7 @@
                         <Font size="30.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="partyName" prefHeight="25.0" prefWidth="218.0">
+                  <TextField fx:id="partyName" prefHeight="25.0" prefWidth="218.0" promptText="Nome partito">
                      <HBox.margin>
                         <Insets left="10.0" top="15.0" />
                      </HBox.margin>
@@ -78,7 +78,7 @@
                         <Insets />
                      </HBox.margin>
                   </Label>
-                  <DatePicker fx:id="foundationDate">
+                  <DatePicker fx:id="foundationDate" promptText="Data di fondazione">
                      <HBox.margin>
                         <Insets left="5.0" top="15.0" />
                      </HBox.margin>

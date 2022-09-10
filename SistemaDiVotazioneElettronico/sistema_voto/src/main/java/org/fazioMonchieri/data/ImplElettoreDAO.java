@@ -40,7 +40,7 @@ public class ImplElettoreDAO implements ElettoreDAO, Observable{
     }
 
     @Override
-    public void createElettore(String username, String password, String codiceFiscale){
+    public void createElettore(String username, String password, String codiceFiscale) throws SQLException{
         //Apertura della connessione.
         Connection connection = null;
         try{
@@ -60,7 +60,9 @@ public class ImplElettoreDAO implements ElettoreDAO, Observable{
             state.executeUpdate();
             connection.close();
         }catch(SQLException e){
+            
                 System.out.println(e.getMessage());
+                throw e;
         }
     }
     

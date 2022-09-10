@@ -6,6 +6,7 @@
 package org.fazioMonchieri.data;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import org.fazioMonchieri.models.Elettore;
 import org.fazioMonchieri.models.Persona;
@@ -19,7 +20,7 @@ public interface ElettoreDAO {
      * @param password
      * @param codiceFiscale
      */
-    public void createElettore(String usernam, String password, String codiceFiscale);
+    public void createElettore(String usernam, String password, String codiceFiscale) throws SQLException;
     
     //Permette di restituire la persona dato il codice fiscale.
     /**

@@ -6,6 +6,7 @@
 package org.fazioMonchieri.data;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 import org.fazioMonchieri.models.Partito;
 
@@ -23,7 +24,7 @@ public interface PartitoDAO {
      * @param nome
      * @param dataFondazione
      */
-    public void createPartito(String nome, Date dataFondazione);
+    public void createPartito(String nome, Date dataFondazione) throws SQLException;
     
     //Permette di restituire tutti i partiti.
     /**

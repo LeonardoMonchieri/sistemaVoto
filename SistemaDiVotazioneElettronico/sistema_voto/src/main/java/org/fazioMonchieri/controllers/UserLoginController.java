@@ -51,8 +51,8 @@ public class UserLoginController extends Controller{
     @FXML
     void login() throws Exception {
         
-        String user = username.getText().toString().replaceAll("\\s", "");
-        String pw = password.getText().toString().replaceAll("\\s", "");
+        String user = username.getText().toString();
+        String pw = password.getText().toString();
         Boolean isGestore = isAdmin.isSelected();
 
         Alert alert = new Alert(AlertType.WARNING);
@@ -64,10 +64,12 @@ public class UserLoginController extends Controller{
         }else if(user.length()==0){
             alert.setContentText("Inserisci un username");
             alert.showAndWait();
+            return;
         }
         else if(pw.length()==0){
             alert.setContentText("Inserisci la password");
             alert.showAndWait();
+            return;
         }
         
        

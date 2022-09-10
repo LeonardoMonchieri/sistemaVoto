@@ -87,6 +87,22 @@ public class ImplCandidatoDAO implements CandidatoDAO, Observable{
         }catch(SQLException e){
                 System.out.println(e.getMessage());
         }
+
+        query="SELECT * FROM Candidato WHERE persona = ?";
+        try{
+            PreparedStatement state = connection.prepareStatement(query);
+            state = connection.prepareStatement(query);
+            state.setString(1, codiceFiscale);
+            ResultSet resultSet = state.executeQuery();
+            if(resultSet.next()){
+                connection.close();
+                throw new IllegalArgumentException("Candidato giá presente");
+            }
+            
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
         query = "INSERT INTO Candidato ('ruolo', 'persona', 'partito') VALUES (?, ?, ?);";
         try{
             PreparedStatement state = connection.prepareStatement(query);

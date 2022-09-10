@@ -1,5 +1,6 @@
 package org.fazioMonchieri.controllers;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -35,8 +36,11 @@ public class PartyCreationController extends Controller{
     }
 
     public void create(){
-        String pn = partyName.getText().toString().replaceAll("\\s", "");
+        
+        ImplPartitoDAO partitoDAO = ImplPartitoDAO.getInstance();
+        String pn = partyName.getText().toString();
         LocalDate fd = foundationDate.getValue();
+
         Alert warningAllert = new Alert(AlertType.WARNING);
         if(pn.isEmpty() || pn==null ){
             warningAllert.setTitle("Errore di inserimento");
@@ -44,16 +48,23 @@ public class PartyCreationController extends Controller{
             warningAllert.showAndWait();
             return;
         }
-        if(false){ //Esiste un partito con lo stesso nome
+
+        if(fd.isAfter(LocalDate.now()) ){
+            warningAllert.setTitle("Errore di inserimento");
+            warningAllert.setHeaderText("La data di fondazione deve essere precedente a oggi");
+            warningAllert.showAndWait();
+            return;
+        }
+
+        try{
+            partitoDAO.createPartito(pn, java.sql.Date.valueOf(fd));
+        }catch(SQLException e){
             warningAllert.setTitle("Errore durante la creazione");
             warningAllert.setHeaderText("Il partito é giá presente");
             warningAllert.showAndWait();
             return;
         }
         
-        //Create party
-        ImplPartitoDAO partitoDAO = ImplPartitoDAO.getInstance();
-        partitoDAO.createPartito(pn, java.sql.Date.valueOf(fd));
         navigate("GestoreView", this.gestore);
 
     }

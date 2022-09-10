@@ -5,6 +5,7 @@
  */
 package org.fazioMonchieri.data;
 
+import java.sql.SQLException;
 import java.util.List;
 import org.fazioMonchieri.models.Candidato;
 import org.fazioMonchieri.models.Partito;

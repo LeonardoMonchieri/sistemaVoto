@@ -4,10 +4,8 @@ import org.fazioMonchieri.models.Sessione;
 import org.fazioMonchieri.models.TipoScrutinio;
 import org.fazioMonchieri.models.TipoSessione;
 import org.fazioMonchieri.utilities.Controller;
-import org.fazioMonchieri.data.ElettoreDAO;
 import org.fazioMonchieri.data.ImplCandidatoDAO;
 import org.fazioMonchieri.data.ImplSessioneDAO;
-import org.fazioMonchieri.data.PartitoDAO;
 import org.fazioMonchieri.models.Candidato;
 import org.fazioMonchieri.models.Gestore;
 import org.fazioMonchieri.models.Partito;
@@ -28,7 +26,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.chart.PieChart;
 
-import java.io.Serial;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;

@@ -37,6 +37,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 public class VotingController extends Controller {
@@ -62,10 +63,10 @@ public class VotingController extends Controller {
     private ImplSessioneDAO sessioneDAO;
 
     @FXML
-    private Label title;
+    private Text title;
 
     @FXML
-    private Label question;
+    private Text question;
 
     @FXML
     private HBox hBoxOptions;
@@ -174,7 +175,7 @@ public class VotingController extends Controller {
         } else if (sessione.getTipoSessione() == TipoSessione.votoOrdinale) {
             if(selectedCandidate!=null) votaCandidatoDAO.votaCandidatoOrdinale(this.sessione.getId(), selectedCandidate);
             else if(selectedparty!=null) votaPartitoDAO.votaPartitoOrdinale(this.sessione.getId(), selectedparty);
-        } else if (sessione.getTipoSessione() == TipoSessione.referendum) {   
+        } else if (sessione.getTipoSessione() == TipoSessione.referendum && selectedOption!=null) {   
             referendumDAO = ImplReferendumDAO.getInstance();   
             referendumDAO.votaReferendum(this.sessione.getId(), selectedOption);
         }
@@ -182,7 +183,7 @@ public class VotingController extends Controller {
 
         sessioneDAO.votazione(this.elettore.getId(), this.sessione.getId());
 
-        Alert alert = new Alert(AlertType.CONFIRMATION);
+        Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Voto completato");
         alert.setContentText("Il voto é stato registrato");
         alert.showAndWait();

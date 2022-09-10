@@ -1,6 +1,7 @@
 package org.fazioMonchieri.controllers;
 
 import java.nio.charset.spi.CharsetProvider;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -58,13 +59,13 @@ public class CadidateCreationController extends Controller{
 
         Alert warningAlert = new Alert(AlertType.WARNING);
         String error=""; 
-        String cf = codiceFiscale.getText().toString().replaceAll("\\s", "");
+        String cf = codiceFiscale.getText().toString().replaceAll("\\s", "").toUpperCase();
         String p = party.getValue();
         String r = role.getValue();
 
         
 
-        if(cf.isEmpty() || cf==null) error+="Inserisci un codice fiscale valido\n";
+        if(cf.length()!=16 || cf==null) error+="Inserisci un codice fiscale valido\n";
         if(p.isEmpty() || p==null) error+= "Seleziona un partito\n";
         if(r.isEmpty() || r==null) error+= "Seleziona un ruolo\n";
         if(!error.isEmpty()){
@@ -74,22 +75,19 @@ public class CadidateCreationController extends Controller{
             warningAlert.showAndWait();
             return;
         }
-        
-        if(false){   //Candidato giá affiliato ad un altro partito
-            Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
-            ButtonType continua = new ButtonType("continua"); 
-            ButtonType annulla = new ButtonType("annulla"); 
-            confirmAlert.getButtonTypes().setAll(continua,annulla); 
-            confirmAlert.setTitle("Errore durante la creazione");
-            confirmAlert.setHeaderText("Il candidato risulta giá ffiliato ad un altro partito");
-            confirmAlert.setContentText("Sostituire il partito del candidato con quello inserito?");
 
-            Optional<ButtonType> result = confirmAlert.showAndWait();
-            if (result.get() == annulla) return;
-        }
-        //Crea candidato 
         ImplCandidatoDAO candidatoDAO = ImplCandidatoDAO.getInstance();
-        candidatoDAO.createCandidato(r,cf,p);
+        try {
+            candidatoDAO.createCandidato(r,cf,p);
+        } catch (IllegalArgumentException e) {
+            warningAlert.setTitle("Errore di inserimento");
+            warningAlert.setHeaderText("Il candidato appartiene giá ad un altro partito");
+            warningAlert.showAndWait();
+            return;
+        }
+        
+      
+        //Crea candidato 
         Alert infoAlert = new Alert(AlertType.INFORMATION);
         infoAlert.setHeaderText("Candidato creato");
         infoAlert.setContentText("Il candidato é stato creato verrai reinderizzato alla tua pagina di gestione");

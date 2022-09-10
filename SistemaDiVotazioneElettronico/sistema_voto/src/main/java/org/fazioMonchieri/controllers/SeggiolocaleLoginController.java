@@ -6,9 +6,11 @@ import org.fazioMonchieri.utilities.Controller;
 
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 
 
@@ -36,21 +38,50 @@ public class SeggiolocaleLoginController extends Controller{
 
     @FXML
     void login() throws Exception {
-        
-        Integer id = Integer.parseInt(seggioId.getText().toString().replaceAll("\\s", ""));
-        String pw = password.getText().toString().replaceAll("\\s", "");
-        
-        if(id==null || pw.length()==0){
-            result.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
-            result.setText("Inserisci le credenziali");   
+
+        Alert alert = new Alert(AlertType.WARNING);
+        Integer id=-1;
+        try{
+            id = Integer.parseInt(seggioId.getText());
+        }catch(NumberFormatException nf){
+            alert.setContentText("Inserisci un id valido");
+            alert.showAndWait();
             return;
         }
+       
+        String pw = password.getText().toString();
+
+        Boolean numFlag = false;
+        Boolean charFlag = false;
+
+        
+        for(int i=0;i<=pw.length();i++){
+            if(Character.isDigit(pw.charAt(i)) && !numFlag){
+                numFlag=true;
+            }
+            if(Character.isAlphabetic(pw.charAt(i)) && !charFlag){
+                charFlag=true;
+            }
+        }
+
+        if(pw.length()<5){
+            alert.setContentText("Inserisci password valida");
+            alert.showAndWait();
+            return;
+        }
+        if(id==-1){
+            alert.setContentText("Inserisci un id valido");
+            alert.showAndWait();
+            return;
+        }
+        
         seggioDAO = ImplSeggioDAO.getInstance();
         Seggio seggio= seggioDAO.loginSeggio(id, pw);
 
         if(seggio==null){
-            result.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
-            result.setText("credenziali NON valide");
+            alert.setContentText("Credenziali NON valide");
+            alert.showAndWait();
+            return;
         }else{
             navigate("SeggiolocaleView", seggio);   
         }

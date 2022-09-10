@@ -64,7 +64,7 @@ public class ImplPartitoDAO implements PartitoDAO, Observable{
     }
 
     @Override
-    public void createPartito(String nome, Date date){
+    public void createPartito(String nome, Date date) throws SQLException{
         //Apertura della connessione.
         Connection connection = null;
         try{
@@ -84,6 +84,7 @@ public class ImplPartitoDAO implements PartitoDAO, Observable{
             connection.close();
         }catch(SQLException e){
             System.out.println(e.getMessage());
+            throw e;
         }
     }
     

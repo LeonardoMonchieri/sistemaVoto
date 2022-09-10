@@ -1,5 +1,6 @@
 package org.fazioMonchieri.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.fazioMonchieri.data.ImplElettoreDAO;
@@ -47,36 +48,59 @@ public class UserCreationController extends Controller{
 
     @FXML
     public void create(){
-        String cf = codiceFiscale.getText().toString().replaceAll("\\s", "");
-        String un = username.getText().toString().replaceAll("\\s", "");
-        String pw = password.getText().toString().replaceAll("\\s", "");
+        String cf = codiceFiscale.getText().toString().toUpperCase();;
+        String un = username.getText().toString();
+        String pw = password.getText().toString();
 
-        if(cf.isEmpty() || cf.equals(null)){
-            result.setText("Inserisci un codice fiscale valido");
-            result.setTextFill(Color.RED);
-            result.setFont(Font.font("System", 21));
+        Alert warningAllert = new Alert(AlertType.WARNING);
+
+
+     
+        Boolean numFlag = false;
+        Boolean charFlag = false;
+
+        for(int i=0;i<=pw.length();i++){
+            if(Character.isDigit(pw.charAt(i)) && !numFlag){
+                numFlag=true;
+            }
+            if(Character.isAlphabetic(pw.charAt(i)) && !charFlag){
+                charFlag=true;
+            }
+        }
+
+        if(cf.length()!=16 || cf.equals(null)){
+            warningAllert.setTitle("Errore di inserimento");
+            warningAllert.setHeaderText("Inserisci un codice fiscale valido");
+            warningAllert.showAndWait();
+            return;
         }
         
         if(un.isEmpty() || un.equals(null)){
-            result.setText("Inserisci un username valido");
-            result.setTextFill(Color.RED);
-            result.setFont(Font.font("System", 21));
-        }
-
-        if(pw.length()==0 || pw.isEmpty() ){
-            result.setStyle("-fx-text-fill: red; -fx-font-size: 20px;");
-            result.setText("Inserisci una password valida ");   
+            warningAllert.setTitle("Errore di inserimento");
+            warningAllert.setHeaderText("Inserisci un username valido");
+            warningAllert.showAndWait();
             return;
         }
 
+        if(pw.length()<5 || pw.isEmpty() || !numFlag || !charFlag){
+            warningAllert.setTitle("Errore di inserimento");
+            warningAllert.setHeaderText("Inserisci una password valida ");   
+            warningAllert.showAndWait();
+            return;
+        }
+
+        ImplElettoreDAO elettoreDAO = ImplElettoreDAO.getInstance();
         
-        if(false){//Check se esite giá utente
+        try{//Check se esite giá utente
+            elettoreDAO.createElettore(un, pw, cf);
+        }catch(SQLException e){
+            warningAllert.setTitle("Errore di inserimento");
+            warningAllert.setHeaderText("Utente giá registrato ");   
+            warningAllert.showAndWait();
             navigate("GestoreView", this.gestore);
         } 
 
         //Crea Utente
-        ImplElettoreDAO elettoreDAO = ImplElettoreDAO.getInstance();
-        elettoreDAO.createElettore(un, pw, cf);
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setHeaderText("Creazione utente avvenuta con successo");
         alert.setContentText("Verrai reinderizzato alla tua pagina gestore");
